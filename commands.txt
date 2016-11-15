@@ -1,0 +1,6 @@
+SELECT d.id, d.original, d.class, i.expectedClass, i.ImputedClass FROM document d inner join imputation i on d.id = i.document WHERE 1
+
+ python3 -W ignore::DeprecationWarning  /var/www/html/TextKNNPy/KNN.py
+
+
+SELECT r.id,r.datasetRepresentation,r.algorithm,r.metric,r.description,r.status, COUNT(*) as num_test_documents FROM experiment r INNER JOIN imputation d ON r.id = d.experiment GROUP BY r.id,r.datasetRepresentation,r.algorithm,r.metric,r.description,r.status
