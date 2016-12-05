@@ -42,14 +42,6 @@ test = 25
 trainList = [50,75,80]
 testList = [50,25,20]
 
-k = 1
-#increment = 1 #for oil test
-#maxK = int(numDocuments * 0.35) # for oil test
-increment = 10
-maxK = 31
-batch = 1
-
-
 kList = []
 
 cnx = mysql.connector.connect(user=DBUser, password=DBPassword,
@@ -60,7 +52,7 @@ cnx2 = mysql.connector.connect(user=DBUser, password=DBPassword,
                               database=DBName)
 
 cursorDR = cnx2.cursor()
-query = ("SELECT id,description FROM datasetrepresentation WHERE active=1")
+query = ("SELECT id,description FROM datasetrepresentation WHERE id=19")
 cursorDR.execute(query)
 datasetRepresentationDescription = cursorDR.fetchone()
 
@@ -95,7 +87,11 @@ while (datasetRepresentationDescription is not None):
             cursor.close()
 
             numDocuments = len(documents)
-
+            k = 1
+            #increment = 1 #for oil test
+            #maxK = int(numDocuments * 0.35) # for oil test
+            increment = 10
+            maxK = int(numDocuments * 0.25)
           #  print("Num docs = " + str(numDocuments))
            # print("maxK = " + str(maxK))
 
@@ -113,9 +109,9 @@ while (datasetRepresentationDescription is not None):
 
                         cursor = cnx.cursor()
                         addExperiment = (
-                        "INSERT INTO experiment(datasetRepresentation, algorithm, metric, description, status, batch) VALUES (%i, %i, %i, '%s', '%s', %i)")
-                        dataExperiment = (datasetRepresentationId, algorithmId, metricId, description, "running", batch)
-                        cursor.execute(addExperiment % dataExperiment)
+                        "INSERT INTO experiment(datasetRepresentation, algorithm, metric, description, status) VALUES (%i, %i, %i, '%s', '%s')")
+                        dataExperiment = (datasetRepresentationId, algorithmId, metricId, description, "running")
+                       # cursor.execute(addExperiment % dataExperiment)
                         experimentId = cursor.lastrowid
                         cursor.close()
 
@@ -185,7 +181,7 @@ while (datasetRepresentationDescription is not None):
 
                                 dataImputation = (
                                     documentIdsTest[c], experimentId, classesTest[c], predictions[c][0])
-                                cursor.execute(addImputation % dataImputation)
+                               # cursor.execute(addImputation % dataImputation)
                                 cursor.close()
                                 c = c + 1
                                 cnx.commit()
@@ -193,13 +189,13 @@ while (datasetRepresentationDescription is not None):
                             cursor = cnx.cursor()
                             updateExperiment = ("UPDATE experiment SET status='successful' WHERE id=%i")
                             dataUpdateExperiment = (experimentId)
-                            cursor.execute(updateExperiment % dataUpdateExperiment)
+                            #cursor.execute(updateExperiment % dataUpdateExperiment)
                             cursor.close()
                             cnx.commit()
 
                         if (additionalInfo == "bagging"):
                            # print("8")
-                            bagging = BaggingClassifier(neigh,max_samples=0.15, max_features=1.0)
+                            bagging = BaggingClassifier(neigh,max_samples=0.25, max_features=1.0)
                             bagging.fit(vectorsTrain, classesTrain)
                             predictions = []
                             c = 0
@@ -212,7 +208,7 @@ while (datasetRepresentationDescription is not None):
 
                                 dataImputation = (
                                     documentIdsTest[c], experimentId, classesTest[c], predictions[c][0])
-                                cursor.execute(addImputation % dataImputation)
+                                #cursor.execute(addImputation % dataImputation)
                                 cursor.close()
                                 c = c + 1
                                 cnx.commit()
@@ -220,7 +216,7 @@ while (datasetRepresentationDescription is not None):
                             cursor = cnx.cursor()
                             updateExperiment = ("UPDATE experiment SET status='successful' WHERE id=%i")
                             dataUpdateExperiment = (experimentId)
-                            cursor.execute(updateExperiment % dataUpdateExperiment)
+                            #cursor.execute(updateExperiment % dataUpdateExperiment)
                             cursor.close()
                             cnx.commit()
 
