@@ -28,9 +28,11 @@ def customKLD(x,y):
     return 1-KLResult
 
 
-metricNames = ['Jaccard','Cosine']
+#metricNames = ['Jaccard','Cosine']
+metricNames = ['Divergence-KL','Cosine']
 datasetRepresentationId = 24
 algorithmName = 'KNN'
+#algorithmName = 'LDA'
 
 techniques = ["No ensemble","bagging"]
 additionalInfo = 'No ensemble'
@@ -46,7 +48,7 @@ k = 1
 #increment = 1 #for oil test
 #maxK = int(numDocuments * 0.35) # for oil test
 increment = 10
-maxK = 31
+maxK = 32
 batch = 1
 
 
@@ -71,7 +73,7 @@ while (datasetRepresentationDescription is not None):
     print("Processing DR: " + datasetRepresentationDescription)
     for (metricName) in metricNames:
         #print("2 " + metricName + ". Desc: " + datasetRepresentationDescription)
-        if (metricName == "Jaccard" and "without TF-IDF" in datasetRepresentationDescription) or metricName == "Cosine":
+        if (metricName == "Jaccard" and "without TF-IDF" in datasetRepresentationDescription) or (metricName == "Divergence-KL" and "LDA" in datasetRepresentationDescription) or metricName == "Cosine":
             #print("3")
 
             cursor = cnx.cursor()
@@ -89,7 +91,7 @@ while (datasetRepresentationDescription is not None):
             cursor.close()
 
             cursor = cnx.cursor()
-            query = ("SELECT * FROM document where datasetRepresentation=%i AND class NOT IN('N/A','n/a')")
+            query = ("SELECT * FROM document where datasetRepresentation=%i AND class NOT IN('N/A','n/a') AND class NOT LIKE 'TEST:%%'")
             cursor.execute(query % (datasetRepresentationId))
             documents = cursor.fetchall()
             cursor.close()
@@ -106,130 +108,140 @@ while (datasetRepresentationDescription is not None):
                     train = trainValue
                     test = 100 - train
 
-                    for (additionalInfo) in techniques:
-                        #print("6")
-                        description = datasetRepresentationDescription + ". Algorithm: " + algorithmName + " (" + additionalInfo + "). Metric: " + metricName + ". K=" + str(
-                            k) + ". Train=" + str(train) + "% Test=" + str(test) + "%."
+                    if ("LDA" not in datasetRepresentationDescription) or ("LDA" in datasetRepresentationDescription and ("Train: "+str(train)) in datasetRepresentationDescription):
 
-                        cursor = cnx.cursor()
-                        addExperiment = (
-                        "INSERT INTO experiment(datasetRepresentation, algorithm, metric, description, status, batch) VALUES (%i, %i, %i, '%s', '%s', %i)")
-                        dataExperiment = (datasetRepresentationId, algorithmId, metricId, description, "running", batch)
-                        cursor.execute(addExperiment % dataExperiment)
-                        experimentId = cursor.lastrowid
-                        cursor.close()
+                        for (additionalInfo) in techniques:
+                            #print("6")
+                            description = datasetRepresentationDescription + ". Algorithm: " + algorithmName + " (" + additionalInfo + "). Metric: " + metricName + ". K=" + str(
+                                k) + ". Train=" + str(train) + "% Test=" + str(test) + "%."
 
-                        cnx.commit()
+                            cursor = cnx.cursor()
+                            addExperiment = (
+                            "INSERT INTO experiment(datasetRepresentation, algorithm, metric, description, status, batch) VALUES (%i, %i, %i, '%s', '%s', %i)")
+                            dataExperiment = (datasetRepresentationId, algorithmId, metricId, description, "running", batch)
+                            cursor.execute(addExperiment % dataExperiment)
+                            experimentId = cursor.lastrowid
+                            cursor.close()
 
-                        vectorsTrain = []
-                        vectorsTest = []
-                        classesTrain = []
-                        classesTest = []
-                        documentIdsTrain = []
-                        documentIdsTest = []
+                            cnx.commit()
 
-                        c = 0
+                            vectorsTrain = []
+                            vectorsTest = []
+                            classesTrain = []
+                            classesTest = []
+                            documentIdsTrain = []
+                            documentIdsTest = []
 
-                        documentsTrain, documentsTest = train_test_split(documents, test_size=(test / 100),
+                            c = 0
+
+                            if ("LDA" in datasetRepresentationDescription):
+                                documentsTrain = documents
+                                cursor = cnx.cursor()
+                                query = ("SELECT * FROM document where datasetRepresentation=%i AND class NOT IN('N/A','n/a') AND class LIKE 'TEST:%%'")
+                                cursor.execute(query % (datasetRepresentationId))
+                                documentsTest = cursor.fetchall()
+                                cursor.close()
+                            else:
+                                documentsTrain, documentsTest = train_test_split(documents, test_size=(test / 100),
                                                                          random_state=int(time.time()))
-                        for (document) in documentsTrain:
-                            documentIdsTrain.append(document[0])
-                            vectorsTrain.append(document[3].split(','))
-                            classesTrain.append(document[4])
-                            c = c + 1
-
-                        for (document) in documentsTest:
-                            documentIdsTest.append(document[0])
-                            vectorsTest.append(document[3].split(','))
-                            classesTest.append(document[4])
-                            c = c + 1
-
-                        # for (document) in documents:
-                        #     if c > 0:
-                        #         documentIds.append(document[0])
-                        #         vectors.append(document[3].split(','))
-                        #         classes.append(document[4])
-                        #     c = c + 1
-                        #
-                        # vectorsTrain, vectorsTest, classesTrain, classesTest, documentsTrain, documentsTest = train_test_split(vectors, classes, documentIds, test_size=(test/100), random_state=int((random.random()*10)))
-
-                        # print(vectorsTrain)
-                        # print(vectorsTest)
-                        # print(classesTrain)
-                        # print(classesTest)
-
-
-                        # dist = DistanceMetric.get_metric(metricName.lower())
-
-                        funcDist = None
-                        if metricName == 'Cosine':
-                            funcDist = customCosine
-                        if metricName == 'Jaccard':
-                            funcDist = customJaccard
-                        if metricName == 'Divergence-KL':
-                            funcDist = customKLD
-
-                        neigh = KNeighborsClassifier(n_neighbors=k, metric=funcDist)
-
-                        if (additionalInfo == "No ensemble"):
-                            #print("7")
-                            neigh.fit(vectorsTrain, classesTrain)
-                            predictions = []
-                            c = 0
-                            for (vector) in vectorsTest:
-                                predictions.append(neigh.predict(vector))
-                                cursor = cnx.cursor()
-                                addImputation = (
-                                    "INSERT INTO imputation(document, experiment, expectedClass, imputedClass) VALUES (%i, %i, '%s', '%s')")
-                                # print(predictions[c][0])
-
-                                dataImputation = (
-                                    documentIdsTest[c], experimentId, classesTest[c], predictions[c][0])
-                                cursor.execute(addImputation % dataImputation)
-                                cursor.close()
+                            for (document) in documentsTrain:
+                                documentIdsTrain.append(document[0])
+                                vectorsTrain.append(document[3].split(','))
+                                classesTrain.append(document[4])
                                 c = c + 1
+
+                            for (document) in documentsTest:
+                                documentIdsTest.append(document[0])
+                                vectorsTest.append(document[3].split(','))
+                                classesTest.append(document[4][5:])
+                                c = c + 1
+
+                            # for (document) in documents:
+                            #     if c > 0:
+                            #         documentIds.append(document[0])
+                            #         vectors.append(document[3].split(','))
+                            #         classes.append(document[4])
+                            #     c = c + 1
+                            #
+                            # vectorsTrain, vectorsTest, classesTrain, classesTest, documentsTrain, documentsTest = train_test_split(vectors, classes, documentIds, test_size=(test/100), random_state=int((random.random()*10)))
+
+                            # print(vectorsTrain)
+                            # print(vectorsTest)
+                            # print(classesTrain)
+                            # print(classesTest)
+
+
+                            # dist = DistanceMetric.get_metric(metricName.lower())
+
+                            funcDist = None
+                            if metricName == 'Cosine':
+                                funcDist = customCosine
+                            if metricName == 'Jaccard':
+                                funcDist = customJaccard
+                            if metricName == 'Divergence-KL':
+                                funcDist = customKLD
+
+                            neigh = KNeighborsClassifier(n_neighbors=k, metric=funcDist)
+
+                            if (additionalInfo == "No ensemble"):
+                                #print("7")
+                                neigh.fit(vectorsTrain, classesTrain)
+                                predictions = []
+                                c = 0
+                                for (vector) in vectorsTest:
+                                    predictions.append(neigh.predict(vector))
+                                    cursor = cnx.cursor()
+                                    addImputation = (
+                                        "INSERT INTO imputation(document, experiment, expectedClass, imputedClass) VALUES (%i, %i, '%s', '%s')")
+                                    # print(predictions[c][0])
+
+                                    dataImputation = (
+                                        documentIdsTest[c], experimentId, classesTest[c], predictions[c][0])
+                                    cursor.execute(addImputation % dataImputation)
+                                    cursor.close()
+                                    c = c + 1
+                                    cnx.commit()
+
+                                cursor = cnx.cursor()
+                                updateExperiment = ("UPDATE experiment SET status='successful' WHERE id=%i")
+                                dataUpdateExperiment = (experimentId)
+                                cursor.execute(updateExperiment % dataUpdateExperiment)
+                                cursor.close()
                                 cnx.commit()
 
-                            cursor = cnx.cursor()
-                            updateExperiment = ("UPDATE experiment SET status='successful' WHERE id=%i")
-                            dataUpdateExperiment = (experimentId)
-                            cursor.execute(updateExperiment % dataUpdateExperiment)
-                            cursor.close()
-                            cnx.commit()
+                            if (additionalInfo == "bagging"):
+                               # print("8")
+                                bagging = BaggingClassifier(neigh,max_samples=0.15, max_features=1.0)
+                                bagging.fit(vectorsTrain, classesTrain)
+                                predictions = []
+                                c = 0
+                                for (vector) in vectorsTest:
+                                    predictions.append(bagging.predict(vector))
+                                    cursor = cnx.cursor()
+                                    addImputation = (
+                                        "INSERT INTO imputation(document, experiment, expectedClass, imputedClass) VALUES (%i, %i, '%s', '%s')")
+                                    # print(predictions[c][0])
 
-                        if (additionalInfo == "bagging"):
-                           # print("8")
-                            bagging = BaggingClassifier(neigh,max_samples=0.15, max_features=1.0)
-                            bagging.fit(vectorsTrain, classesTrain)
-                            predictions = []
-                            c = 0
-                            for (vector) in vectorsTest:
-                                predictions.append(bagging.predict(vector))
+                                    dataImputation = (
+                                        documentIdsTest[c], experimentId, classesTest[c], predictions[c][0])
+                                    cursor.execute(addImputation % dataImputation)
+                                    cursor.close()
+                                    c = c + 1
+                                    cnx.commit()
+
                                 cursor = cnx.cursor()
-                                addImputation = (
-                                    "INSERT INTO imputation(document, experiment, expectedClass, imputedClass) VALUES (%i, %i, '%s', '%s')")
-                                # print(predictions[c][0])
-
-                                dataImputation = (
-                                    documentIdsTest[c], experimentId, classesTest[c], predictions[c][0])
-                                cursor.execute(addImputation % dataImputation)
+                                updateExperiment = ("UPDATE experiment SET status='successful' WHERE id=%i")
+                                dataUpdateExperiment = (experimentId)
+                                cursor.execute(updateExperiment % dataUpdateExperiment)
                                 cursor.close()
-                                c = c + 1
                                 cnx.commit()
 
-                            cursor = cnx.cursor()
-                            updateExperiment = ("UPDATE experiment SET status='successful' WHERE id=%i")
-                            dataUpdateExperiment = (experimentId)
-                            cursor.execute(updateExperiment % dataUpdateExperiment)
-                            cursor.close()
-                            cnx.commit()
-
-                            # for (doc1) in documents:
-                        #     str1 = "(" + doc1[2] + " --- "
-                        #     for (doc2) in documents:
-                        #         dist = funcDist(doc1[3].split(','),doc2[3].split(','))
-                        #         str2 = str1 + doc2[2] + ") = Distance: " + str(dist)
-                        #         print(str2)
+                                # for (doc1) in documents:
+                            #     str1 = "(" + doc1[2] + " --- "
+                            #     for (doc2) in documents:
+                            #         dist = funcDist(doc1[3].split(','),doc2[3].split(','))
+                            #         str2 = str1 + doc2[2] + ") = Distance: " + str(dist)
+                            #         print(str2)
 
                 k = k + increment
 
