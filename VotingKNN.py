@@ -1,12 +1,10 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import BaggingClassifier
-from sklearn.model_selection import train_test_split
 from sklearn.neighbors import DistanceMetric
-from sklearn.metrics import jaccard_similarity_score
 from sklearn.metrics import mutual_info_score
 from sklearn.metrics.pairwise import cosine_similarity
 from DBCredentials import DBUser, DBPassword, DBName, DBHost
-from Parameters import metricNames, algorithmName, techniques, trainList, k, increment, maxK, batch
+from Parameters import Experiment,votingCombinations
 import mysql.connector
 import random
 import sys
@@ -28,8 +26,6 @@ def customKLD(x,y):
     KLResult = mutual_info_score(x,y)
     return 1-KLResult
 
-
-
 cnx = mysql.connector.connect(user=DBUser, password=DBPassword,
                               host=DBHost,
                               database=DBName)
@@ -37,10 +33,89 @@ cnx2 = mysql.connector.connect(user=DBUser, password=DBPassword,
                               host=DBHost,
                               database=DBName)
 
-cursorDR = cnx2.cursor()
-query = ("SELECT id,description FROM datasetrepresentation WHERE active=1")
-cursorDR.execute(query)
-datasetRepresentationDescription = cursorDR.fetchone()
+for (combination) in votingCombinations:
+    estimators = []
+    documentsTrain = []
+    documentsTest = []
+    combClassesTrain = []
+    combClassesTest = []
+    combIdsTrain = []
+    combIdsTest = []
+    combinationDescription = ""
+    combC = 0
+    for (experiment) in combination:
+        documentIdsTrain = []
+        vectorsTrain = []
+        classesTrain = []
+        documentIdsTest = []
+        vectorsTest = []
+        classesTest = []
+
+        cursorDR = cnx2.cursor()
+        query = ("SELECT id,datasetRepresentation,algorithm,metric,description FROM experiment WHERE description LIKE '%%%s%%'")
+        cursorDR.execute(query % (experiment.description))
+        experimentObject = cursorDR.fetchone()
+
+        experimentId = experimentObject[0]
+        datasetRepresentationId = experimentObject[1]
+        algorithmId = experimentObject[2]
+        metricId = experimentObject[3]
+        combinationDescription += experimentObject[4] + "+"
+        k = experiment.k
+
+        cursor = cnx.cursor()
+        query = ("SELECT * FROM document where datasetRepresentation=%i AND class NOT IN('N/A','n/a')")
+        cursor.execute(query % (datasetRepresentationId))
+        documents = cursor.fetchall()
+        cursor.close()
+
+        for (document) in documents:
+            documentIdsTrain.append(document[0])
+            vectorsTrain.append(document[3].split(','))
+            classesTrain.append(document[4])
+
+        descriptionTest = experiment.description.split(".")[0].replace("File:Train","File:Test")
+
+        cursorDR = cnx2.cursor()
+        query = (
+        "SELECT id FROM datasetrepresentation WHERE description LIKE '%%%s%%'")
+        cursorDR.execute(query % (descriptionTest))
+        experimentObject = cursorDR.fetchone()
+
+        datasetRepresentationId = experimentObject[0]
+
+        cursor = cnx.cursor()
+        query = ("SELECT * FROM document where datasetRepresentation=%i AND class NOT IN('N/A','n/a')")
+        cursor.execute(query % (datasetRepresentationId))
+        documents = cursor.fetchall()
+        cursor.close()
+
+        for (document) in documents:
+            documentIdsTest.append(document[0])
+            vectorsTest.append(document[3].split(','))
+            classesTest.append(document[4])
+
+        funcDist = None
+        if metricId == 1:
+            funcDist = customCosine
+        if metricId == 2:
+            funcDist = customJaccard
+        if metricId == 3:
+            funcDist = customKLD
+
+        neigh = KNeighborsClassifier(n_neighbors=k, metric=funcDist)
+        estimators.append((combC, neigh))
+
+        documentsTrain.append(vectorsTrain)
+        documentsTest.append(vectorsTest)
+        combClassesTrain.append(classesTrain)
+        combClassesTest.append(classesTest)
+        combIdsTrain.append(documentIdsTrain)
+        combIdsTest.append(documentIdsTest)
+        combinationDescription = combinationDescription + "+" + experiment.description
+        combC = combC + 1
+
+
 
 while (datasetRepresentationDescription is not None):
     datasetRepresentationId = datasetRepresentationDescription[0]

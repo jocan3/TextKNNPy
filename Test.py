@@ -1,254 +1,269 @@
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import BaggingClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import DistanceMetric
-from sklearn.metrics import jaccard_similarity_score
-from sklearn.metrics import mutual_info_score
-from sklearn.metrics.pairwise import cosine_similarity
-from DBCredentials import DBUser, DBPassword, DBName, DBHost
-import mysql.connector
-import random
-import sys
-import warnings
-import time
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+"""
+Soft Voting/Majority Rule classifier.
 
-def customJaccard(x,y):
-    Xvalue = [x,y]
-    dist = DistanceMetric.get_metric('jaccard')
-    jaccardResult = dist.pairwise(Xvalue)
-    return jaccardResult[0][1]
+This module contains a Soft Voting/Majority Rule classifier for
+classification estimators.
 
-def customCosine(x,y):
-    cosResult = cosine_similarity(x,y)
-    return (1-(cosResult[0] + 1)/2)
+"""
 
-def customKLD(x,y):
-    KLResult = mutual_info_score(x,y)
-    return 1-KLResult
+# Authors: Sebastian Raschka <se.raschka@gmail.com>,
+#          Gilles Louppe <g.louppe@gmail.com>
+#
+# License: BSD 3 clause
+
+import numpy as np
+
+from ..base import BaseEstimator
+from ..base import ClassifierMixin
+from ..base import TransformerMixin
+from ..base import clone
+from ..preprocessing import LabelEncoder
+from ..externals import six
+from ..externals.joblib import Parallel, delayed
+from ..utils.validation import has_fit_parameter, check_is_fitted
 
 
-#metricNames = ['Jaccard','Cosine']
-metricNames = ['Divergence-KL','Cosine']
-datasetRepresentationId = 24
-algorithmName = 'KNN'
-#algorithmName = 'LDA'
-
-techniques = ["No ensemble"]
-additionalInfo = 'No ensemble'
-metricName = 'Jaccard'
-k = 30
-train = 75
-test = 25
-
-trainList = [50]
-testList = [50]
-
-k = 10
-#increment = 1 #for oil test
-#maxK = int(numDocuments * 0.35) # for oil test
-increment = 1
-maxK = 11
-batch = -1
+def _parallel_fit_estimator(estimator, X, y, sample_weight):
+    """Private function used to fit an estimator within a job."""
+    if sample_weight is not None:
+        estimator.fit(X, y, sample_weight)
+    else:
+        estimator.fit(X, y)
+    return estimator
 
 
-kList = []
+class VotingClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
+    """Soft Voting/Majority Rule classifier for unfitted estimators.
 
-cnx = mysql.connector.connect(user=DBUser, password=DBPassword,
-                              host=DBHost,
-                              database=DBName)
-cnx2 = mysql.connector.connect(user=DBUser, password=DBPassword,
-                              host=DBHost,
-                              database=DBName)
+    .. versionadded:: 0.17
 
-cursorDR = cnx2.cursor()
-query = ("SELECT id,description FROM datasetrepresentation WHERE active=1")
-cursorDR.execute(query)
-datasetRepresentationDescription = cursorDR.fetchone()
+    Read more in the :ref:`User Guide <voting_classifier>`.
 
-while (datasetRepresentationDescription is not None):
-    datasetRepresentationId = datasetRepresentationDescription[0]
-    datasetRepresentationDescription = datasetRepresentationDescription[1]
+    Parameters
+    ----------
+    estimators : list of (string, estimator) tuples
+        Invoking the ``fit`` method on the ``VotingClassifier`` will fit clones
+        of those original estimators that will be stored in the class attribute
+        `self.estimators_`.
 
-    print("Processing DR: " + datasetRepresentationDescription)
-    for (metricName) in metricNames:
-        print("2 " + metricName + ". Desc: " + datasetRepresentationDescription)
-        if (metricName == "Jaccard" and "without TF-IDF" in datasetRepresentationDescription) or (metricName == "Divergence-KL" and "LDA" in datasetRepresentationDescription) or metricName == "Cosine":
-            print("3")
+    voting : str, {'hard', 'soft'} (default='hard')
+        If 'hard', uses predicted class labels for majority rule voting.
+        Else if 'soft', predicts the class label based on the argmax of
+        the sums of the predicted probabilities, which is recommended for
+        an ensemble of well-calibrated classifiers.
 
-            cursor = cnx.cursor()
-            query = ("SELECT id FROM algorithm WHERE name='%s'")
-            cursor.execute(query % (algorithmName))
-            algorithmId = cursor.fetchone()
-            algorithmId = algorithmId[0]
-            cursor.close()
+    weights : array-like, shape = [n_classifiers], optional (default=`None`)
+        Sequence of weights (`float` or `int`) to weight the occurrences of
+        predicted class labels (`hard` voting) or class probabilities
+        before averaging (`soft` voting). Uses uniform weights if `None`.
 
-            cursor = cnx.cursor()
-            query = ("SELECT id FROM metric WHERE name='%s'")
-            cursor.execute(query % (metricName))
-            metricId = cursor.fetchone()
-            metricId = metricId[0]
-            cursor.close()
+    n_jobs : int, optional (default=1)
+        The number of jobs to run in parallel for ``fit``.
+        If -1, then the number of jobs is set to the number of cores.
 
-            cursor = cnx.cursor()
-            query = ("SELECT * FROM document where datasetRepresentation=%i AND class NOT IN('N/A','n/a') AND class NOT LIKE 'TEST:%%'")
-            cursor.execute(query % (datasetRepresentationId))
-            documents = cursor.fetchall()
-            cursor.close()
+    Attributes
+    ----------
+    estimators_ : list of classifiers
+        The collection of fitted sub-estimators.
 
-            numDocuments = len(documents)
+    classes_ : array-like, shape = [n_predictions]
+        The classes labels.
 
-            print("Num docs = " + str(numDocuments))
-            print("maxK = " + str(maxK))
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from sklearn.linear_model import LogisticRegression
+    >>> from sklearn.naive_bayes import GaussianNB
+    >>> from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+    >>> clf1 = LogisticRegression(random_state=1)
+    >>> clf2 = RandomForestClassifier(random_state=1)
+    >>> clf3 = GaussianNB()
+    >>> X = np.array([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]])
+    >>> y = np.array([1, 1, 1, 2, 2, 2])
+    >>> eclf1 = VotingClassifier(estimators=[
+    ...         ('lr', clf1), ('rf', clf2), ('gnb', clf3)], voting='hard')
+    >>> eclf1 = eclf1.fit(X, y)
+    >>> print(eclf1.predict(X))
+    [1 1 1 2 2 2]
+    >>> eclf2 = VotingClassifier(estimators=[
+    ...         ('lr', clf1), ('rf', clf2), ('gnb', clf3)],
+    ...         voting='soft')
+    >>> eclf2 = eclf2.fit(X, y)
+    >>> print(eclf2.predict(X))
+    [1 1 1 2 2 2]
+    >>> eclf3 = VotingClassifier(estimators=[
+    ...        ('lr', clf1), ('rf', clf2), ('gnb', clf3)],
+    ...        voting='soft', weights=[2,1,1])
+    >>> eclf3 = eclf3.fit(X, y)
+    >>> print(eclf3.predict(X))
+    [1 1 1 2 2 2]
+    >>>
+    """
 
-            while (k < maxK):
-                print("4")
-                for (trainValue) in trainList:
-                    print("5")
-                    train = trainValue
-                    test = 100 - train
+    def __init__(self, estimators, voting='hard', weights=None, n_jobs=1):
+        self.estimators = estimators
+        self.named_estimators = dict(estimators)
+        self.voting = voting
+        self.weights = weights
+        self.n_jobs = n_jobs
 
-                    if ("LDA" not in datasetRepresentationDescription) or ("LDA" in datasetRepresentationDescription and ("Train: "+str(train)) in datasetRepresentationDescription):
+    def fit(self, X, y, sample_weight=None):
+        """ Fit the estimators.
 
-                        for (additionalInfo) in techniques:
-                            print("6")
-                            description = datasetRepresentationDescription + ". Algorithm: " + algorithmName + " (" + additionalInfo + "). Metric: " + metricName + ". K=" + str(
-                                k) + ". Train=" + str(train) + "% Test=" + str(test) + "%."
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}, shape = [n_samples, n_features]
+            Training vectors, where n_samples is the number of samples and
+            n_features is the number of features.
 
-                            # cursor = cnx.cursor()
-                            # addExperiment = (
-                            # "INSERT INTO experiment(datasetRepresentation, algorithm, metric, description, status, batch) VALUES (%i, %i, %i, '%s', '%s', %i)")
-                            # dataExperiment = (datasetRepresentationId, algorithmId, metricId, description, "running", batch)
-                            # cursor.execute(addExperiment % dataExperiment)
-                            # experimentId = cursor.lastrowid
-                            # cursor.close()
-                            #
-                            # cnx.commit()
+        y : array-like, shape = [n_samples]
+            Target values.
 
-                            vectorsTrain = []
-                            vectorsTest = []
-                            classesTrain = []
-                            classesTest = []
-                            documentIdsTrain = []
-                            documentIdsTest = []
+        sample_weight : array-like, shape = [n_samples] or None
+            Sample weights. If None, then samples are equally weighted.
+            Note that this is supported only if all underlying estimators
+            support sample weights.
 
-                            c = 0
+        Returns
+        -------
+        self : object
+        """
+        if isinstance(y, np.ndarray) and len(y.shape) > 1 and y.shape[1] > 1:
+            raise NotImplementedError('Multilabel and multi-output'
+                                      ' classification is not supported.')
 
-                            if ("LDA" in datasetRepresentationDescription):
-                                documentsTrain = documents
-                                cursor = cnx.cursor()
-                                query = ("SELECT * FROM document where datasetRepresentation=%i AND class NOT IN('N/A','n/a') AND class LIKE 'TEST:%%' LIMIT 5")
-                                cursor.execute(query % (datasetRepresentationId))
-                                documentsTest = cursor.fetchall()
-                                cursor.close()
-                            else:
-                                documentsTrain, documentsTest = train_test_split(documents, test_size=(test / 100),
-                                                                         random_state=int(time.time()))
-                            for (document) in documentsTrain:
-                                documentIdsTrain.append(document[0])
-                                vectorsTrain.append(document[3].split(','))
-                                classesTrain.append(document[4])
-                                c = c + 1
+        if self.voting not in ('soft', 'hard'):
+            raise ValueError("Voting must be 'soft' or 'hard'; got (voting=%r)"
+                             % self.voting)
 
-                            for (document) in documentsTest:
-                                documentIdsTest.append(document[0])
-                                vectorsTest.append(document[3].split(','))
-                                classesTest.append(document[4][5:])
-                                c = c + 1
+        if self.estimators is None or len(self.estimators) == 0:
+            raise AttributeError('Invalid `estimators` attribute, `estimators`'
+                                 ' should be a list of (string, estimator)'
+                                 ' tuples')
 
-                            # for (document) in documents:
-                            #     if c > 0:
-                            #         documentIds.append(document[0])
-                            #         vectors.append(document[3].split(','))
-                            #         classes.append(document[4])
-                            #     c = c + 1
-                            #
-                            # vectorsTrain, vectorsTest, classesTrain, classesTest, documentsTrain, documentsTest = train_test_split(vectors, classes, documentIds, test_size=(test/100), random_state=int((random.random()*10)))
+        if (self.weights is not None and
+                len(self.weights) != len(self.estimators)):
+            raise ValueError('Number of classifiers and weights must be equal'
+                             '; got %d weights, %d estimators'
+                             % (len(self.weights), len(self.estimators)))
 
-                            # print(vectorsTrain)
-                            # print(vectorsTest)
-                            # print(classesTrain)
-                            # print(classesTest)
+        if sample_weight is not None:
+            for name, step in self.estimators:
+                if not has_fit_parameter(step, 'sample_weight'):
+                    raise ValueError('Underlying estimator \'%s\' does not support'
+                                     ' sample weights.' % name)
 
+        self.le_ = LabelEncoder()
+        self.le_.fit(y)
+        self.classes_ = self.le_.classes_
+        self.estimators_ = []
 
-                            # dist = DistanceMetric.get_metric(metricName.lower())
+        transformed_y = self.le_.transform(y)
 
-                            funcDist = None
-                            if metricName == 'Cosine':
-                                funcDist = customCosine
-                            if metricName == 'Jaccard':
-                                funcDist = customJaccard
-                            if metricName == 'Divergence-KL':
-                                funcDist = customKLD
+        self.estimators_ = Parallel(n_jobs=self.n_jobs)(
+                delayed(_parallel_fit_estimator)(clone(clf), X, transformed_y,
+                    sample_weight)
+                    for _, clf in self.estimators)
 
-                            neigh = KNeighborsClassifier(n_neighbors=k, metric=funcDist)
+        return self
 
-                            if (additionalInfo == "No ensemble"):
-                                print("7")
-                                neigh.fit(vectorsTrain, classesTrain)
-                                predictions = []
-                                c = 0
-                                for (vector) in vectorsTest:
-                                    predictions.append(neigh.predict(vector))
-                                    print("Document test id: " + str(documentIdsTest[c]))
-                                    print("Predicted: " + str(predictions[c][0]))
-                                    # cursor = cnx.cursor()
-                                    # addImputation = (
-                                    #     "INSERT INTO imputation(document, experiment, expectedClass, imputedClass) VALUES (%i, %i, '%s', '%s')")
-                                    # # print(predictions[c][0])
-                                    #
-                                    # dataImputation = (
-                                    #     documentIdsTest[c], experimentId, classesTest[c], predictions[c][0])
-                                    # cursor.execute(addImputation % dataImputation)
-                                    # cursor.close()
-                                    c = c + 1
-                                    # cnx.commit()
+    def predict(self, X):
+        """ Predict class labels for X.
 
-                                # cursor = cnx.cursor()
-                                # updateExperiment = ("UPDATE experiment SET status='successful' WHERE id=%i")
-                                # dataUpdateExperiment = (experimentId)
-                                # cursor.execute(updateExperiment % dataUpdateExperiment)
-                                # cursor.close()
-                                # cnx.commit()
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}, shape = [n_samples, n_features]
+            Training vectors, where n_samples is the number of samples and
+            n_features is the number of features.
 
-                            if (additionalInfo == "bagging"):
-                                print("8")
-                                bagging = BaggingClassifier(neigh,max_samples=0.15, max_features=1.0)
-                                bagging.fit(vectorsTrain, classesTrain)
-                                predictions = []
-                                c = 0
-                                for (vector) in vectorsTest:
-                                    predictions.append(bagging.predict(vector))
-                                    # cursor = cnx.cursor()
-                                    # addImputation = (
-                                    #     "INSERT INTO imputation(document, experiment, expectedClass, imputedClass) VALUES (%i, %i, '%s', '%s')")
-                                    # # print(predictions[c][0])
-                                    #
-                                    # dataImputation = (
-                                    #     documentIdsTest[c], experimentId, classesTest[c], predictions[c][0])
-                                    # cursor.execute(addImputation % dataImputation)
-                                    # cursor.close()
-                                    c = c + 1
-                                    #cnx.commit()
+        Returns
+        ----------
+        maj : array-like, shape = [n_samples]
+            Predicted class labels.
+        """
 
-                                # cursor = cnx.cursor()
-                                # updateExperiment = ("UPDATE experiment SET status='successful' WHERE id=%i")
-                                # dataUpdateExperiment = (experimentId)
-                                # cursor.execute(updateExperiment % dataUpdateExperiment)
-                                # cursor.close()
-                                # cnx.commit()
+        check_is_fitted(self, 'estimators_')
+        if self.voting == 'soft':
+            maj = np.argmax(self.predict_proba(X), axis=1)
 
-                                # for (doc1) in documents:
-                            #     str1 = "(" + doc1[2] + " --- "
-                            #     for (doc2) in documents:
-                            #         dist = funcDist(doc1[3].split(','),doc2[3].split(','))
-                            #         str2 = str1 + doc2[2] + ") = Distance: " + str(dist)
-                            #         print(str2)
+        else:  # 'hard' voting
+            predictions = self._predict(X)
+            maj = np.apply_along_axis(lambda x:
+                                      np.argmax(np.bincount(x,
+                                                weights=self.weights)),
+                                      axis=1,
+                                      arr=predictions.astype('int'))
 
-                k = k + increment
+        maj = self.le_.inverse_transform(maj)
 
-    datasetRepresentationDescription = cursorDR.fetchone()
+        return maj
 
-cnx.close()
-cnx2.close()
-cursorDR.close()
+    def _collect_probas(self, X):
+        """Collect results from clf.predict calls. """
+        return np.asarray([clf.predict_proba(X) for clf in self.estimators_])
+
+    def _predict_proba(self, X):
+        """Predict class probabilities for X in 'soft' voting """
+        if self.voting == 'hard':
+            raise AttributeError("predict_proba is not available when"
+                                 " voting=%r" % self.voting)
+        check_is_fitted(self, 'estimators_')
+        avg = np.average(self._collect_probas(X), axis=0, weights=self.weights)
+        return avg
+
+    @property
+    def predict_proba(self):
+        """Compute probabilities of possible outcomes for samples in X.
+
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}, shape = [n_samples, n_features]
+            Training vectors, where n_samples is the number of samples and
+            n_features is the number of features.
+
+        Returns
+        ----------
+        avg : array-like, shape = [n_samples, n_classes]
+            Weighted average probability for each class per sample.
+        """
+        return self._predict_proba
+
+    def transform(self, X):
+        """Return class labels or probabilities for X for each estimator.
+
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}, shape = [n_samples, n_features]
+            Training vectors, where n_samples is the number of samples and
+            n_features is the number of features.
+
+        Returns
+        -------
+        If `voting='soft'`:
+          array-like = [n_classifiers, n_samples, n_classes]
+            Class probabilities calculated by each classifier.
+        If `voting='hard'`:
+          array-like = [n_samples, n_classifiers]
+            Class labels predicted by each classifier.
+        """
+        check_is_fitted(self, 'estimators_')
+        if self.voting == 'soft':
+            return self._collect_probas(X)
+        else:
+            return self._predict(X)
+
+    def get_params(self, deep=True):
+        """Return estimator parameter names for GridSearch support"""
+        if not deep:
+            return super(VotingClassifier, self).get_params(deep=False)
+        else:
+            out = super(VotingClassifier, self).get_params(deep=False)
+            out.update(self.named_estimators.copy())
+            for name, step in six.iteritems(self.named_estimators):
+                for key, value in six.iteritems(step.get_params(deep=True)):
+                    out['%s__%s' % (name, key)] = value
+            return out
+
+    def _predict(self, X):
+        """Collect results from clf.predict calls. """
+        return np.asarray([clf.predict(X) for clf in self.estimators_]).T
