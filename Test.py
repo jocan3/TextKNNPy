@@ -13,23 +13,23 @@ classification estimators.
 
 import numpy as np
 
-from ..base import BaseEstimator
-from ..base import ClassifierMixin
-from ..base import TransformerMixin
-from ..base import clone
-from ..preprocessing import LabelEncoder
-from ..externals import six
-from ..externals.joblib import Parallel, delayed
-from ..utils.validation import has_fit_parameter, check_is_fitted
+from sklearn.base import BaseEstimator
+from sklearn.base import ClassifierMixin
+from sklearn.base import TransformerMixin
+from sklearn.base import clone
+from sklearn.preprocessing import LabelEncoder
+from sklearn.externals import six
+from sklearn.externals.joblib import Parallel, delayed
+from sklearn.utils.validation import has_fit_parameter, check_is_fitted
 
 
-def _parallel_fit_estimator(estimator, X, y, sample_weight):
+def _parallel_fit_estimator(estimator, X, y, sample_weight, index):
     """Private function used to fit an estimator within a job."""
     if sample_weight is not None:
-        estimator.fit(X, y, sample_weight)
+        estimator.fit(X[index], y, sample_weight)
     else:
-        estimator.fit(X, y)
-    return estimator
+        estimator.fit(X[index], y)
+    return (index,estimator)
 
 
 class VotingClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
@@ -128,9 +128,9 @@ class VotingClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
         -------
         self : object
         """
-        if isinstance(y, np.ndarray) and len(y.shape) > 1 and y.shape[1] > 1:
-            raise NotImplementedError('Multilabel and multi-output'
-                                      ' classification is not supported.')
+        # if isinstance(y, np.ndarray) and len(y.shape) > 1 and y.shape[1] > 1:
+        #     raise NotImplementedError('Multilabel and multi-output'
+        #                               ' classification is not supported.')
 
         if self.voting not in ('soft', 'hard'):
             raise ValueError("Voting must be 'soft' or 'hard'; got (voting=%r)"
@@ -162,9 +162,8 @@ class VotingClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
 
         self.estimators_ = Parallel(n_jobs=self.n_jobs)(
                 delayed(_parallel_fit_estimator)(clone(clf), X, transformed_y,
-                    sample_weight)
-                    for _, clf in self.estimators)
-
+                    sample_weight,index)
+                    for index, clf in self.estimators)
         return self
 
     def predict(self, X):
@@ -266,4 +265,4 @@ class VotingClassifier(BaseEstimator, ClassifierMixin, TransformerMixin):
 
     def _predict(self, X):
         """Collect results from clf.predict calls. """
-        return np.asarray([clf.predict(X) for clf in self.estimators_]).T
+        return np.asarray([clf.predict(X[index]) for index,clf in self.estimators_]).T

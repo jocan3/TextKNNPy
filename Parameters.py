@@ -23,14 +23,399 @@ class Experiment:
       self.description = description
       self.k = k
 
+comments = "Experiments with better recall in some classes (5 experiments)"
+
 votingCombinations = [
     [
-        Experiment("Test",1),
-        Experiment("Test",11)
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31)
     ],
     [
-        Experiment("Test",1),
-        Experiment("Test",11)
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=31.",31),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:08 Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=21.",21),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 LDA only Alpha:02 Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
+    ],
+    [
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Jaccard. K=1.",1),
+       Experiment("reuters-1 words vector without TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (bagging). Metric: Cosine. K=1.",1),
+       Experiment("reuters-1 words vector with TF-IDF Train:75 File:Train. Algorithm: KNN (No ensemble). Metric: Cosine. K=11.",11)
     ]
 ]
-

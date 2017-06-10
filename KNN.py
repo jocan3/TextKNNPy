@@ -4,9 +4,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import DistanceMetric
 from sklearn.metrics import jaccard_similarity_score
 from sklearn.metrics import mutual_info_score
+from sklearn.metrics import normalized_mutual_info_score
 from sklearn.metrics.pairwise import cosine_similarity
+from scipy.stats import entropy
 from DBCredentials import DBUser, DBPassword, DBName, DBHost
-from Parameters import metricNames, algorithmName, techniques, trainList, k, increment, maxK, batch
+from Parameters import metricNames, algorithmName, techniques, trainList, k, increment, maxK, maxSamples, batch
 import mysql.connector
 import random
 import sys
@@ -24,11 +26,21 @@ def customCosine(x,y):
     cosResult = cosine_similarity(x,y)
     return (1-(cosResult[0] + 1)/2)
 
+# def customKLD(x,y):
+#     KLResult = mutual_info_score(x,y)
+#     return 1-KLResult
+
+#def customKLD(x,y):
+#    KLResult = normalized_mutual_info_score(x,y)
+ #   return 1 - KLResult
+
 def customKLD(x,y):
-    KLResult = mutual_info_score(x,y)
-    return 1-KLResult
+    newX = [0.000001 if e == 0 else e for e in x]
+    newY = [0.000001 if e == 0 else e for e in y]
+    KLResult = entropy(newX,newY)
+    return KLResult
 
-
+original_k = k
 
 cnx = mysql.connector.connect(user=DBUser, password=DBPassword,
                               host=DBHost,
@@ -48,9 +60,7 @@ while (datasetRepresentationDescription is not None):
 
     print("Processing DR: " + datasetRepresentationDescription)
     for (metricName) in metricNames:
-        #print("2 " + metricName + ". Desc: " + datasetRepresentationDescription)
         if (metricName == "Jaccard" and "without TF-IDF" in datasetRepresentationDescription) or (metricName == "Divergence-KL" and "LDA" in datasetRepresentationDescription) or metricName == "Cosine":
-            #print("3")
 
             cursor = cnx.cursor()
             query = ("SELECT id FROM algorithm WHERE name='%s'")
@@ -73,7 +83,7 @@ while (datasetRepresentationDescription is not None):
             cursor.close()
 
             datasetRepresentationDescriptionTest = datasetRepresentationDescription.replace("File:Train","File:Test")
-            #print("Test = " + datasetRepresentationDescriptionTest)
+            print("Test = " + datasetRepresentationDescriptionTest)
             cursor = cnx.cursor()
             query = ("SELECT id FROM datasetrepresentation where description='%s'")
             cursor.execute(query % (datasetRepresentationDescriptionTest))
@@ -83,10 +93,8 @@ while (datasetRepresentationDescription is not None):
 
             numDocuments = len(documents)
 
-           # print("Num docs = " + str(numDocuments))
-            #print("maxK = " + str(maxK))
+            k = original_k
             while (k < maxK):
-               # print("4")
                 for (trainValue) in trainList:
                     #print("5")
                     train = trainValue
@@ -174,7 +182,7 @@ while (datasetRepresentationDescription is not None):
 
                             if (additionalInfo == "bagging"):
                                # print("8")
-                                bagging = BaggingClassifier(neigh,max_samples=0.15, max_features=1.0)
+                                bagging = BaggingClassifier(neigh,max_samples=maxSamples, max_features=1.0)
                                 bagging.fit(vectorsTrain, classesTrain)
                                 predictions = []
                                 c = 0
